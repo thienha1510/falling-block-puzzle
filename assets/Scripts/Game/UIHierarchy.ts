@@ -149,9 +149,8 @@ function findNodeDeep(root: cc.Node, name: string): cc.Node | null {
 /** Seed empty shell nodes so the scene matches UIBuilder; idempotent (safe every load). */
 export function seedShellForPlayableCanvas(canvas: cc.Node): void {
     const layout = GameConstants.LAYOUT;
-    const block = GameConstants.BLOCK_SIZE;
-    const boardW = GameConstants.BOARD_COLS * block;
-    const boardH = GameConstants.BOARD_ROWS * block;
+    const boardW = GameConstants.BOARD_WIDTH;
+    const boardH = GameConstants.BOARD_HEIGHT;
     const nextSlotH = layout.SIDE_PANEL_WIDTH;
     const nextHeader = 28;
     const slotGap = 8;

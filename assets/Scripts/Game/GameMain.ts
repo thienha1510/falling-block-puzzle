@@ -27,8 +27,10 @@ import { Renderer } from './Renderer';
 import { Tetromino, PieceState } from './Tetromino';
 import { UIBuilder, UIRefs } from './UIBuilder';
 import { seedShellForPlayableCanvas, setUILayoutPositionsFromCode } from './UIHierarchy';
+import { ensureBgBhBlurOnCanvas } from '../Generic/BgBhBlurSprite';
 import { I18n } from '../I18n/I18n';
 import { applyGameplayLocale, applyPlaySceneEditorLocale } from '../I18n/GameplayLocaleApply';
+import GuidePanelController, { findGuidePrefabRoot, isGuidePrefabRoot } from '../Components/GuidePanelController';
 
 const { ccclass, property, executeInEditMode } = cc._decorator;
 
@@ -121,7 +123,21 @@ export default class GameMain extends cc.Component {
     })
     private gameOverPrefab: cc.Prefab | null = null;
 
+    @property({
+        type: cc.Prefab,
+        tooltip:
+            'Prefab Guide (Normal / Marathon / Invisible + Desc). Trống = dùng node Guide có sẵn trong scene.',
+    })
+    private guidePrefab: cc.Prefab | null = null;
+
+    @property({
+        tooltip:
+            'Bật để luôn hiện Guide khi test (bỏ qua điều kiện best < 50). Tắt khi build release.',
+    })
+    public forceShowGuide = false;
+
     private mLocaleUnsub: (() => void) | null = null;
+    private mGuideController: GuidePanelController | null = null;
     private mSettingsRoot: cc.Node | null = null;
     /** Đang mở bảng Setting (khác PauseOverlay). */
     private mSettingsPanelActive = false;
@@ -182,6 +198,7 @@ export default class GameMain extends cc.Component {
             'gameComponents',
             'buttonLayer',
             'Background',
+            'bg-bh',
             'TopHUD',
             'BoardRoot',
             'Board',
@@ -192,6 +209,7 @@ export default class GameMain extends cc.Component {
             'PauseButton',
             'AdBannerPlaceholder',
             'OverlayRoot',
+            'Guide',
         ]);
         const oldChildren = this.node.children.slice();
         for (let i = 0; i < oldChildren.length; i++) {
@@ -220,6 +238,8 @@ export default class GameMain extends cc.Component {
 
         // Build all UI
         const self = this;
+        ensureBgBhBlurOnCanvas(this.node);
+
         this.ui = UIBuilder.build(this.node, {
             onPause: function () { self.pauseGame(); },
             onResume: function () { self.resumeGame(); },
@@ -239,6 +259,9 @@ export default class GameMain extends cc.Component {
                 applyGameplayLocale(selfForLocale.ui);
             }
             applyPlaySceneEditorLocale(selfForLocale.node);
+            if (selfForLocale.mGuideController && selfForLocale.mGuideController.isValid) {
+                selfForLocale.mGuideController.applyDescAndGestureLocale();
+            }
         });
         applyGameplayLocale(this.ui);
         applyPlaySceneEditorLocale(this.node);
@@ -252,7 +275,12 @@ export default class GameMain extends cc.Component {
         // Initialize board + bag + renderer
         this.board = new Board();
         this.bag = new Bag();
-        this.renderer = new Renderer(this.board, this.ui.boardGraphics, GameConstants.BLOCK_SIZE);
+        this.renderer = new Renderer(
+            this.board,
+            this.ui.boardGraphics,
+            GameConstants.BLOCK_WIDTH,
+            GameConstants.BLOCK_HEIGHT
+        );
 
         // Wire input
         const handlers: InputHandlers = {
@@ -278,8 +306,38 @@ export default class GameMain extends cc.Component {
         UIBuilder.drawHoldPreview(this.ui, null);
         UIBuilder.drawNextPreview(this.ui, []);
 
-        // Homescreen is on loadingScene; entering marathonScene means user already pressed PLAY.
         this.state = GameState.Ready;
+        this.tryShowGuideThenStart();
+    };
+
+    private tryShowGuideThenStart(): void {
+        const self = this;
+        const ctrl = this.ensureGuidePanel();
+        const showGuide =
+            ctrl != null &&
+            ctrl.applyForPlayScene(this.gameMode, this.bestScore, this.forceShowGuide);
+        if (!showGuide && ctrl && !this.forceShowGuide) {
+            cc.log(
+                '[Guide] Ẩn — best score',
+                this.bestScore,
+                '>=',
+                GameConstants.GUIDE_SHOW_BELOW_SCORE,
+                '(bật forceShowGuide trên GameMain để test)',
+            );
+        }
+        if (showGuide && ctrl) {
+            this.input.setGameplayInputEnabled(false);
+            ctrl.setOnClose(function () {
+                ctrl.setOnClose(null);
+                self.beginPlayAfterGuide();
+            });
+            return;
+        }
+        this.beginPlayAfterGuide();
+    }
+
+    private beginPlayAfterGuide(): void {
+        const self = this;
         if (this.autoStart) {
             const delay = Math.max(0.05, this.autoStartDelay);
             this.scheduleOnce(function () {
@@ -290,7 +348,55 @@ export default class GameMain extends cc.Component {
         } else {
             this.startGame();
         }
-    };
+    }
+
+    private ensureGuidePanel(): GuidePanelController | null {
+        if (this.mGuideController && this.mGuideController.isValid) {
+            return this.mGuideController;
+        }
+
+        this.removeLegacySceneGuides();
+
+        let root: cc.Node | null = null;
+        if (this.guidePrefab) {
+            root = cc.instantiate(this.guidePrefab);
+            root.name = 'Guide';
+            const host = UIBuilder.findRootDeep(this.node, 'OverlayRoot') || this.node;
+            host.addChild(root);
+            root.setSiblingIndex(host.childrenCount - 1);
+            root.setPosition(0, 0);
+        } else {
+            root = findGuidePrefabRoot(this.node);
+        }
+
+        if (!root || !root.isValid) {
+            return null;
+        }
+        let ctrl = root.getComponent(GuidePanelController);
+        if (!ctrl) {
+            ctrl = root.addComponent(GuidePanelController);
+        }
+        this.mGuideController = ctrl;
+        return ctrl;
+    }
+
+    /** Node Guide cũ (3 Label, không có Ui/Desc) — gây lệch vị trí / không có mô tả mode. */
+    private removeLegacySceneGuides(): void {
+        const stack: cc.Node[] = [this.node];
+        const remove: cc.Node[] = [];
+        while (stack.length > 0) {
+            const n = stack.pop() as cc.Node;
+            if (n !== this.node && n.name === 'Guide' && !isGuidePrefabRoot(n)) {
+                remove.push(n);
+            }
+            for (let i = 0; i < n.children.length; i++) {
+                stack.push(n.children[i]);
+            }
+        }
+        for (let i = 0; i < remove.length; i++) {
+            remove[i].destroy();
+        }
+    }
 
     // ============================================================
     // Lifecycle

@@ -37,11 +37,24 @@ export const GameConstants = {
     DESIGN_WIDTH: 720,
     DESIGN_HEIGHT: 1280,
 
-    // ----- Board -----
+    /** UV offset cho shader blur node `bg-bh` (tăng = mờ hơn). */
+    BG_BH_BLUR_SIZE: 0.006,
+
+    /** Hiện prefab Guide khi best score của chế độ < giá trị này. */
+    GUIDE_SHOW_BELOW_SCORE: 50,
+
+    // ----- Board (10 cols × 20 rows; pixel size matches editor Board node) -----
     BOARD_COLS: 10,
     BOARD_ROWS: 20,
     HIDDEN_ROWS: 2, // buffer rows above visible area for spawn
-    BLOCK_SIZE: 46, // px per cell (10 cols → 460px wide board on 720 design)
+    BOARD_WIDTH: 452,
+    BOARD_HEIGHT: 880,
+    /** Cell width: BOARD_WIDTH / BOARD_COLS */
+    BLOCK_WIDTH: 45.2,
+    /** Cell height: BOARD_HEIGHT / BOARD_ROWS */
+    BLOCK_HEIGHT: 44,
+    /** @deprecated Use BLOCK_WIDTH / BLOCK_HEIGHT — kept for gesture thresholds that expect one scalar */
+    BLOCK_SIZE: 45.2,
 
     // ----- Side panels (HOLD / NEXT) preview -----
     PREVIEW_BLOCK_SIZE: 22,
@@ -181,6 +194,14 @@ export const GameConstants = {
     },
 };
 
+export function getBoardPixelSize(): { width: number; height: number } {
+    return { width: GameConstants.BOARD_WIDTH, height: GameConstants.BOARD_HEIGHT };
+}
+
+export function getBlockCellSize(): { width: number; height: number } {
+    return { width: GameConstants.BLOCK_WIDTH, height: GameConstants.BLOCK_HEIGHT };
+}
+
 export function storageBestScoreKey(mode: GameMode): string {
     if (mode === GameMode.Normal) {
         return GameConstants.STORAGE.BEST_SCORE_NORMAL;
@@ -189,6 +210,29 @@ export function storageBestScoreKey(mode: GameMode): string {
         return GameConstants.STORAGE.BEST_SCORE_INVISIBILITY;
     }
     return GameConstants.STORAGE.BEST_SCORE_MARATHON;
+}
+
+/** Mọi key localStorage lưu điểm cao (3 chế độ + legacy). */
+export function allBestScoreStorageKeys(): string[] {
+    return [
+        GameConstants.STORAGE.BEST_SCORE_NORMAL,
+        GameConstants.STORAGE.BEST_SCORE_MARATHON,
+        GameConstants.STORAGE.BEST_SCORE_INVISIBILITY,
+        'high_score',
+    ];
+}
+
+/** Xóa toàn bộ best score đã lưu (không đụng nhạc / locale / setting khác). */
+export function clearAllPersistedBestScores(): void {
+    const keys = allBestScoreStorageKeys();
+    for (let i = 0; i < keys.length; i++) {
+        try {
+            cc.sys.localStorage.removeItem(keys[i]);
+        } catch (_e) {
+            // ignore
+        }
+    }
+    cc.log('[Storage] Đã xóa best score:', keys.join(', '));
 }
 
 /**

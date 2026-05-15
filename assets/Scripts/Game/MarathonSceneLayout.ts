@@ -37,11 +37,8 @@ export function getMarathonScenePlaceholderLayouts(): Record<string, Placeholder
     const cw = GameConstants.DESIGN_WIDTH;
     const ch = GameConstants.DESIGN_HEIGHT;
     const layout = GameConstants.LAYOUT;
-    const block = GameConstants.BLOCK_SIZE;
-    const cols = GameConstants.BOARD_COLS;
-    const rows = GameConstants.BOARD_ROWS;
-    const boardW = cols * block;
-    const boardH = rows * block;
+    const boardW = GameConstants.BOARD_WIDTH;
+    const boardH = GameConstants.BOARD_HEIGHT;
     const boardCenterY = layout.BOARD_VERTICAL_OFFSET;
 
     const hudW = cw - 40;

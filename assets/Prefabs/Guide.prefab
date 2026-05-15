@@ -27,7 +27,7 @@
     "_active": true,
     "_components": [],
     "_prefab": {
-      "__id__": 57
+      "__id__": 60
     },
     "_opacity": 255,
     "_color": {
@@ -236,16 +236,16 @@
         "__id__": 41
       },
       {
-        "__id__": 46
+        "__id__": 47
       },
       {
-        "__id__": 51
+        "__id__": 53
       }
     ],
     "_active": true,
     "_components": [],
     "_prefab": {
-      "__id__": 56
+      "__id__": 59
     },
     "_opacity": 255,
     "_color": {
@@ -400,7 +400,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 883,
+      "width": 741,
       "height": 677
     },
     "_anchorPoint": {
@@ -480,8 +480,8 @@
     "alignMode": 1,
     "_target": null,
     "_alignFlags": 45,
-    "_left": -441.5,
-    "_right": -441.5,
+    "_left": -370.5,
+    "_right": -370.5,
     "_top": -238.49999999999994,
     "_bottom": -438.5,
     "_verticalCenter": 0,
@@ -605,7 +605,7 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 794,
+      "width": 666,
       "height": 608
     },
     "_anchorPoint": {
@@ -685,8 +685,8 @@
     "alignMode": 1,
     "_target": null,
     "_alignFlags": 45,
-    "_left": -397,
-    "_right": -397.00000000000006,
+    "_left": -333,
+    "_right": -333.00000000000006,
     "_top": -219,
     "_bottom": -389,
     "_verticalCenter": 0,
@@ -754,8 +754,8 @@
       "__type__": "TypedArray",
       "ctor": "Float64Array",
       "array": [
-        449.987,
-        249.94600000000003,
+        282.911,
+        339.595,
         0,
         0,
         0,
@@ -823,8 +823,8 @@
     "_target": null,
     "_alignFlags": 33,
     "_left": 0,
-    "_right": -487.487,
-    "_top": -287.446,
+    "_right": -320.411,
+    "_top": -377.095,
     "_bottom": 0,
     "_verticalCenter": 0,
     "_horizontalCenter": 0,
@@ -895,7 +895,7 @@
       "ctor": "Float64Array",
       "array": [
         -0.6,
-        261,
+        227.8,
         0,
         0,
         0,
@@ -934,9 +934,9 @@
     ],
     "_srcBlendFactor": 2,
     "_dstBlendFactor": 4,
-    "_string": "Guide",
-    "_N$string": "Guide",
-    "_fontSize": 150,
+    "_string": "HƯỚNG DẪN",
+    "_N$string": "HƯỚNG DẪN",
+    "_fontSize": 100,
     "_lineHeight": 40,
     "_enableWrapText": true,
     "_N$file": {
@@ -1121,8 +1121,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 347,
-      "height": 56.4
+      "width": 390,
+      "height": 56
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -1134,7 +1134,7 @@
       "ctor": "Float64Array",
       "array": [
         0,
-        -274.272,
+        -274,
         0,
         0,
         0,
@@ -1175,11 +1175,13 @@
     "_dstBlendFactor": 771,
     "_string": "Tap to rotate  •  Swipe to move",
     "_N$string": "Tap to rotate  •  Swipe to move",
-    "_fontSize": 25,
+    "_fontSize": 22,
     "_lineHeight": 40,
     "_enableWrapText": true,
-    "_N$file": null,
-    "_isSystemFontUsed": true,
+    "_N$file": {
+      "__uuid__": "3d2f4a09-09ec-4a48-a860-d3925a1a8075"
+    },
+    "_isSystemFontUsed": false,
     "_spacingX": 0,
     "_batchAsBitmap": false,
     "_styleFlags": 0,
@@ -1187,7 +1189,7 @@
     "_N$horizontalAlign": 1,
     "_N$verticalAlign": 1,
     "_N$fontFamily": "Arial",
-    "_N$overflow": 0,
+    "_N$overflow": 1,
     "_N$cacheMode": 0,
     "_id": ""
   },
@@ -1250,8 +1252,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 596,
-      "height": 56.4
+      "width": 655,
+      "height": 56
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -1263,7 +1265,7 @@
       "ctor": "Float64Array",
       "array": [
         0,
-        -324.272,
+        -324,
         0,
         0,
         0,
@@ -1304,11 +1306,13 @@
     "_dstBlendFactor": 771,
     "_string": "Flick down: hard drop  •  Drag down slowly: soft drop",
     "_N$string": "Flick down: hard drop  •  Drag down slowly: soft drop",
-    "_fontSize": 25,
+    "_fontSize": 22,
     "_lineHeight": 40,
     "_enableWrapText": true,
-    "_N$file": null,
-    "_isSystemFontUsed": true,
+    "_N$file": {
+      "__uuid__": "3d2f4a09-09ec-4a48-a860-d3925a1a8075"
+    },
+    "_isSystemFontUsed": false,
     "_spacingX": 0,
     "_batchAsBitmap": false,
     "_styleFlags": 0,
@@ -1316,7 +1320,7 @@
     "_N$horizontalAlign": 1,
     "_N$verticalAlign": 1,
     "_N$fontFamily": "Arial",
-    "_N$overflow": 0,
+    "_N$overflow": 1,
     "_N$cacheMode": 0,
     "_id": ""
   },
@@ -1379,8 +1383,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 432,
-      "height": 56.4
+      "width": 463,
+      "height": 56
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -1392,7 +1396,7 @@
       "ctor": "Float64Array",
       "array": [
         0,
-        -374.272,
+        -374,
         0,
         0,
         0,
@@ -1433,11 +1437,13 @@
     "_dstBlendFactor": 771,
     "_string": "Double tap or HOLD panel: hold piece",
     "_N$string": "Double tap or HOLD panel: hold piece",
-    "_fontSize": 25,
+    "_fontSize": 22,
     "_lineHeight": 40,
     "_enableWrapText": true,
-    "_N$file": null,
-    "_isSystemFontUsed": true,
+    "_N$file": {
+      "__uuid__": "3d2f4a09-09ec-4a48-a860-d3925a1a8075"
+    },
+    "_isSystemFontUsed": false,
     "_spacingX": 0,
     "_batchAsBitmap": false,
     "_styleFlags": 0,
@@ -1445,7 +1451,7 @@
     "_N$horizontalAlign": 1,
     "_N$verticalAlign": 1,
     "_N$fontFamily": "Arial",
-    "_N$overflow": 0,
+    "_N$overflow": 1,
     "_N$cacheMode": 0,
     "_id": ""
   },
@@ -1504,7 +1510,7 @@
     "_active": true,
     "_components": [],
     "_prefab": {
-      "__id__": 45
+      "__id__": 46
     },
     "_opacity": 255,
     "_color": {
@@ -1565,10 +1571,13 @@
     "_components": [
       {
         "__id__": 43
+      },
+      {
+        "__id__": 44
       }
     ],
     "_prefab": {
-      "__id__": 44
+      "__id__": 45
     },
     "_opacity": 255,
     "_color": {
@@ -1580,8 +1589,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 748,
-      "height": 417
+      "width": 600,
+      "height": 386
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -1592,8 +1601,8 @@
       "__type__": "TypedArray",
       "ctor": "Float64Array",
       "array": [
-        -1,
-        -23,
+        0,
+        -32,
         0,
         0,
         0,
@@ -1632,10 +1641,10 @@
     ],
     "_srcBlendFactor": 770,
     "_dstBlendFactor": 771,
-    "_string": "Label",
-    "_N$string": "Label",
-    "_fontSize": 40,
-    "_lineHeight": 40,
+    "_string": "LabelLabelLabelLabelLabelLabelLabelLabelLabelLabelLabelLabelLabelLabelLabelLabel",
+    "_N$string": "LabelLabelLabelLabelLabelLabelLabelLabelLabelLabelLabelLabelLabelLabelLabelLabel",
+    "_fontSize": 30,
+    "_lineHeight": 50,
     "_enableWrapText": true,
     "_N$file": {
       "__uuid__": "3d2f4a09-09ec-4a48-a860-d3925a1a8075"
@@ -1650,6 +1659,24 @@
     "_N$fontFamily": "Arial",
     "_N$overflow": 1,
     "_N$cacheMode": 0,
+    "_id": ""
+  },
+  {
+    "__type__": "cc.LabelOutline",
+    "_name": "",
+    "_objFlags": 0,
+    "node": {
+      "__id__": 42
+    },
+    "_enabled": true,
+    "_color": {
+      "__type__": "cc.Color",
+      "r": 0,
+      "g": 0,
+      "b": 0,
+      "a": 255
+    },
+    "_width": 3,
     "_id": ""
   },
   {
@@ -1683,13 +1710,13 @@
     },
     "_children": [
       {
-        "__id__": 47
+        "__id__": 48
       }
     ],
     "_active": true,
     "_components": [],
     "_prefab": {
-      "__id__": 50
+      "__id__": 52
     },
     "_opacity": 255,
     "_color": {
@@ -1743,17 +1770,20 @@
     "_name": "Desc",
     "_objFlags": 0,
     "_parent": {
-      "__id__": 46
+      "__id__": 47
     },
     "_children": [],
     "_active": true,
     "_components": [
       {
-        "__id__": 48
+        "__id__": 49
+      },
+      {
+        "__id__": 50
       }
     ],
     "_prefab": {
-      "__id__": 49
+      "__id__": 51
     },
     "_opacity": 255,
     "_color": {
@@ -1765,8 +1795,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 748,
-      "height": 417
+      "width": 600,
+      "height": 386
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -1777,8 +1807,8 @@
       "__type__": "TypedArray",
       "ctor": "Float64Array",
       "array": [
-        -1,
-        -23,
+        0,
+        -32,
         0,
         0,
         0,
@@ -1807,7 +1837,7 @@
     "_name": "",
     "_objFlags": 0,
     "node": {
-      "__id__": 47
+      "__id__": 48
     },
     "_enabled": true,
     "_materials": [
@@ -1817,10 +1847,10 @@
     ],
     "_srcBlendFactor": 770,
     "_dstBlendFactor": 771,
-    "_string": "Label",
-    "_N$string": "Label",
-    "_fontSize": 40,
-    "_lineHeight": 40,
+    "_string": "LabelLabelLabelLabelLabelLabelLabelLabelLabelLabelLabelLabelLabelLabelLabelLabel",
+    "_N$string": "LabelLabelLabelLabelLabelLabelLabelLabelLabelLabelLabelLabelLabelLabelLabelLabel",
+    "_fontSize": 30,
+    "_lineHeight": 50,
     "_enableWrapText": true,
     "_N$file": {
       "__uuid__": "3d2f4a09-09ec-4a48-a860-d3925a1a8075"
@@ -1835,6 +1865,24 @@
     "_N$fontFamily": "Arial",
     "_N$overflow": 1,
     "_N$cacheMode": 0,
+    "_id": ""
+  },
+  {
+    "__type__": "cc.LabelOutline",
+    "_name": "",
+    "_objFlags": 0,
+    "node": {
+      "__id__": 48
+    },
+    "_enabled": true,
+    "_color": {
+      "__type__": "cc.Color",
+      "r": 0,
+      "g": 0,
+      "b": 0,
+      "a": 255
+    },
+    "_width": 3,
     "_id": ""
   },
   {
@@ -1868,13 +1916,13 @@
     },
     "_children": [
       {
-        "__id__": 52
+        "__id__": 54
       }
     ],
     "_active": true,
     "_components": [],
     "_prefab": {
-      "__id__": 55
+      "__id__": 58
     },
     "_opacity": 255,
     "_color": {
@@ -1928,17 +1976,20 @@
     "_name": "Desc",
     "_objFlags": 0,
     "_parent": {
-      "__id__": 51
+      "__id__": 53
     },
     "_children": [],
     "_active": true,
     "_components": [
       {
-        "__id__": 53
+        "__id__": 55
+      },
+      {
+        "__id__": 56
       }
     ],
     "_prefab": {
-      "__id__": 54
+      "__id__": 57
     },
     "_opacity": 255,
     "_color": {
@@ -1950,8 +2001,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 748,
-      "height": 417
+      "width": 600,
+      "height": 386
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -1962,8 +2013,8 @@
       "__type__": "TypedArray",
       "ctor": "Float64Array",
       "array": [
-        -1,
-        -23,
+        0,
+        -32,
         0,
         0,
         0,
@@ -1992,7 +2043,7 @@
     "_name": "",
     "_objFlags": 0,
     "node": {
-      "__id__": 52
+      "__id__": 54
     },
     "_enabled": true,
     "_materials": [
@@ -2002,10 +2053,10 @@
     ],
     "_srcBlendFactor": 770,
     "_dstBlendFactor": 771,
-    "_string": "Label",
-    "_N$string": "Label",
-    "_fontSize": 40,
-    "_lineHeight": 40,
+    "_string": "LabelLabelLabelLabelLabelLabelLabelLabelLabelLabelLabelLabelLabelLabelLabelLabel",
+    "_N$string": "LabelLabelLabelLabelLabelLabelLabelLabelLabelLabelLabelLabelLabelLabelLabelLabel",
+    "_fontSize": 30,
+    "_lineHeight": 50,
     "_enableWrapText": true,
     "_N$file": {
       "__uuid__": "3d2f4a09-09ec-4a48-a860-d3925a1a8075"
@@ -2020,6 +2071,24 @@
     "_N$fontFamily": "Arial",
     "_N$overflow": 1,
     "_N$cacheMode": 0,
+    "_id": ""
+  },
+  {
+    "__type__": "cc.LabelOutline",
+    "_name": "",
+    "_objFlags": 0,
+    "node": {
+      "__id__": 54
+    },
+    "_enabled": true,
+    "_color": {
+      "__type__": "cc.Color",
+      "r": 0,
+      "g": 0,
+      "b": 0,
+      "a": 255
+    },
+    "_width": 3,
     "_id": ""
   },
   {

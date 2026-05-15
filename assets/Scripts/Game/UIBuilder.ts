@@ -187,11 +187,8 @@ export class UIBuilder {
         const fullW = Math.max(cw, vis.width);
         const fullH = Math.max(ch, vis.height);
         const layout = GameConstants.LAYOUT;
-        const block = GameConstants.BLOCK_SIZE;
-        const cols = GameConstants.BOARD_COLS;
-        const rows = GameConstants.BOARD_ROWS;
-        const boardW = cols * block;
-        const boardH = rows * block;
+        const boardW = GameConstants.BOARD_WIDTH;
+        const boardH = GameConstants.BOARD_HEIGHT;
         const PL = getMarathonScenePlaceholderLayouts();
 
         try {

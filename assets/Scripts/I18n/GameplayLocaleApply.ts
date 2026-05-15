@@ -4,6 +4,7 @@
 
 import { I18n } from './I18n';
 import { UIRefs, UIBuilder } from '../Game/UIBuilder';
+import GuidePanelController from '../Components/GuidePanelController';
 
 function labelOn(node: cc.Node | null): cc.Label | null {
     if (!node || !node.isValid) {
@@ -298,6 +299,11 @@ function setHeaderOnHoldNextPanels(canvas: cc.Node): void {
 function setGuideLabels(canvas: cc.Node): void {
     const guide = UIBuilder.findRootDeep(canvas, 'Guide');
     if (!guide || !guide.isValid) {
+        return;
+    }
+    const ctrl = guide.getComponent(GuidePanelController);
+    if (ctrl) {
+        ctrl.applyDescAndGestureLocale();
         return;
     }
     const keys = ['HELP_GESTURE_1', 'HELP_GESTURE_2', 'HELP_GESTURE_3'];

@@ -11,6 +11,8 @@ import { AudioMgr } from '../Game/AudioMgr';
 import SettingPanelController from './SettingPanelController';
 import { I18n } from '../I18n/I18n';
 import { applyLoadingHomescreenLocale, applyLoadingSceneModeLabels, applyLoadingSceneTitleLocale } from '../I18n/GameplayLocaleApply';
+import { ensureBgBhBlurOnCanvas } from '../Generic/BgBhBlurSprite';
+import GuidePanelController from './GuidePanelController';
 
 /** Letterbox gần màu sprite `bg` (RGB 34,80,200). */
 const LOADING_PANEL_BLUE = '#2250C8';
@@ -154,6 +156,8 @@ export default class LoadingScene extends cc.Component {
             );
         }
         canvas.color = cc.color(255, 255, 255);
+        ensureBgBhBlurOnCanvas(canvas);
+        this.applyLoadingGuideVisibility(canvas);
 
         const camNode = this.findDescendantByName(canvas, 'Main Camera');
         if (camNode) {
@@ -205,6 +209,7 @@ export default class LoadingScene extends cc.Component {
         const selfLoad = this;
         this.mLocaleUnsub = I18n.subscribe(function () {
             selfLoad.applyLoadingLocalizedStrings();
+            selfLoad.applyLoadingGuideVisibility(canvas);
         });
         this.applyLoadingLocalizedStrings();
     }
@@ -394,6 +399,18 @@ export default class LoadingScene extends cc.Component {
             return;
         }
         this.mSettingsHost.active = false;
+    }
+
+    private applyLoadingGuideVisibility(canvas: cc.Node): void {
+        const guideRoot = this.findDescendantByName(canvas, 'Guide');
+        if (!guideRoot || !guideRoot.isValid) {
+            return;
+        }
+        let ctrl = guideRoot.getComponent(GuidePanelController);
+        if (!ctrl) {
+            ctrl = guideRoot.addComponent(GuidePanelController);
+        }
+        ctrl.applyForLoadingScreen();
     }
 
     private findDescendantByName(root: cc.Node, name: string): cc.Node | null {

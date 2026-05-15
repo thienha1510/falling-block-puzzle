@@ -18,18 +18,21 @@ const GFX_LINE_WIDTH = 1;
 export class Renderer {
     private board: Board;
     private g: cc.Graphics;
-    private blockSize: number;
+    private blockW: number;
+    private blockH: number;
 
     /**
      * @param board     The shared Board instance
      * @param graphics  cc.Graphics used to draw the board (its node should be
      *                  positioned at the bottom-left corner of the board).
-     * @param blockSize Pixel size of each cell.
+     * @param blockW    Pixel width of each cell
+     * @param blockH    Pixel height of each cell
      */
-    constructor(board: Board, graphics: cc.Graphics, blockSize: number) {
+    constructor(board: Board, graphics: cc.Graphics, blockW: number, blockH: number) {
         this.board = board;
         this.g = graphics;
-        this.blockSize = blockSize;
+        this.blockW = blockW;
+        this.blockH = blockH;
     }
 
     public drawAll(opts: {
@@ -51,8 +54,8 @@ export class Renderer {
 
         const cols = this.board.cols;
         const rows = this.board.visibleRows;
-        const bw = cols * this.blockSize;
-        const bh = rows * this.blockSize;
+        const bw = cols * this.blockW;
+        const bh = rows * this.blockH;
 
         // IMPORTANT: Board background/frame are now editor-authored (sprite/layout nodes).
         // To avoid covering them, the renderer only draws gameplay blocks/overlays here.
@@ -67,12 +70,12 @@ export class Renderer {
             g.lineWidth = 0;
         }
         for (let x = 1; x < cols; x++) {
-            g.moveTo(x * this.blockSize, 0);
-            g.lineTo(x * this.blockSize, bh);
+            g.moveTo(x * this.blockW, 0);
+            g.lineTo(x * this.blockW, bh);
         }
         for (let y = 1; y < rows; y++) {
-            g.moveTo(0, y * this.blockSize);
-            g.lineTo(bw, y * this.blockSize);
+            g.moveTo(0, y * this.blockH);
+            g.lineTo(bw, y * this.blockH);
         }
         g.stroke();
 
@@ -128,7 +131,7 @@ export class Renderer {
             for (let i = 0; i < opts.flashRows.length; i++) {
                 const ry = opts.flashRows[i];
                 if (ry < 0 || ry >= rows) continue;
-                g.rect(0, ry * this.blockSize, bw, this.blockSize);
+                g.rect(0, ry * this.blockH, bw, this.blockH);
                 g.fill();
             }
         }
@@ -138,52 +141,55 @@ export class Renderer {
 
     private drawBlock(cx: number, cy: number, kind: PieceKind, alphaMul: number, fallLerpCells = 0): void {
         const g = this.g;
-        const s = this.blockSize;
-        const x = cx * s;
-        const y = (cy - fallLerpCells) * s;
+        const w = this.blockW;
+        const h = this.blockH;
+        const x = cx * w;
+        const y = (cy - fallLerpCells) * h;
         const pad = 2;
-        const inner = s - pad * 2;
+        const innerW = w - pad * 2;
+        const innerH = h - pad * 2;
         const baseColor = hexToColor(GameConstants.PIECE_COLORS[kind], Math.floor(255 * alphaMul));
 
         // Main block fill
         g.fillColor = baseColor;
         g.lineWidth = 0;
-        g.rect(x + pad, y + pad, inner, inner);
+        g.rect(x + pad, y + pad, innerW, innerH);
         g.fill();
 
         // Top + left highlight (lighter)
         const hl = new cc.Color(255, 255, 255, Math.floor(110 * alphaMul));
         g.fillColor = hl;
-        g.rect(x + pad, y + s - pad - Math.floor(s * 0.18), inner, Math.floor(s * 0.18));
+        g.rect(x + pad, y + h - pad - Math.floor(h * 0.18), innerW, Math.floor(h * 0.18));
         g.fill();
-        g.rect(x + pad, y + pad, Math.floor(s * 0.18), inner);
+        g.rect(x + pad, y + pad, Math.floor(w * 0.18), innerH);
         g.fill();
 
         // Bottom + right shadow (darker)
         const sh = new cc.Color(0, 0, 0, Math.floor(90 * alphaMul));
         g.fillColor = sh;
-        g.rect(x + pad, y + pad, inner, Math.floor(s * 0.16));
+        g.rect(x + pad, y + pad, innerW, Math.floor(h * 0.16));
         g.fill();
-        g.rect(x + s - pad - Math.floor(s * 0.16), y + pad, Math.floor(s * 0.16), inner);
+        g.rect(x + w - pad - Math.floor(w * 0.16), y + pad, Math.floor(w * 0.16), innerH);
         g.fill();
 
         // Subtle outline
         g.strokeColor = new cc.Color(0, 0, 0, Math.floor(255 * alphaMul));
         g.lineWidth = 5;
-        g.rect(x + pad, y + pad, inner, inner);
+        g.rect(x + pad, y + pad, innerW, innerH);
         g.stroke();
     }
 
     private drawGhostCell(cx: number, cy: number): void {
         const g = this.g;
-        const s = this.blockSize;
-        const x = cx * s;
-        const y = cy * s;
+        const w = this.blockW;
+        const h = this.blockH;
+        const x = cx * w;
+        const y = cy * h;
         const pad = 3;
         // Ghost (landing preview) should be clearly visible on top of editor-authored board layout.
         g.strokeColor = hexToColor('#ff0000', 255);
         g.lineWidth = 5;
-        g.rect(x + pad, y + pad, s - pad * 2, s - pad * 2);
+        g.rect(x + pad, y + pad, w - pad * 2, h - pad * 2);
         g.stroke();
     }
 

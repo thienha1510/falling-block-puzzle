@@ -297,7 +297,7 @@ export class InputCtrl {
         this.touchLastPos = p;
         this.touchHorizAccum += dx;
 
-        const cellPx = GameConstants.BLOCK_SIZE * cc.view.getScaleX();
+        const cellPx = GameConstants.BLOCK_WIDTH * cc.view.getScaleX();
         const stepThreshold = Math.max(18, cellPx * 0.6);
         if (Math.abs(this.touchHorizAccum) >= stepThreshold) {
             const steps = Math.trunc(this.touchHorizAccum / stepThreshold);

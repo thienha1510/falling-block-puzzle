@@ -23,6 +23,13 @@ export const I18N_STRINGS = {
         HELP_GESTURE_1: 'Tap to rotate  •  Swipe to move',
         HELP_GESTURE_2: 'Flick down: hard drop  •  Drag down slowly: soft drop',
         HELP_GESTURE_3: 'Double tap or HOLD panel: hold piece',
+        GUIDE_TITLE: 'GUIDE',
+        GUIDE_DESC_NORMAL:
+            'Clear lines to score.\nFall speed stays fixed — no levels.\nGreat for quick practice.',
+        GUIDE_DESC_MARATHON:
+            'Every 15 lines cleared, level and fall speed increase.\nSurvive longer and push your high score.',
+        GUIDE_DESC_INVISIBILITY:
+            'Marathon rules, but locked blocks hide for 15s then show for 5s.\nSpeed rises slower than Marathon — plan ahead when the stack is hidden.',
         GO_PREFAB_TITLE: 'Game Over',
         GO_PREFAB_HIGH_SCORE: 'High Score',
         GO_PREFAB_SCORE_LABEL: 'Score',
@@ -57,6 +64,13 @@ export const I18N_STRINGS = {
         HELP_GESTURE_1: 'Chạm để xoay  •  Vuốt để di chuyển',
         HELP_GESTURE_2: 'Vuốt xuống nhanh: rơi tức thì  •  Vuốt xuống chậm: rơi chậm',
         HELP_GESTURE_3: 'Chạm đúp hoặc ô GIỮ: giữ gạch',
+        GUIDE_TITLE: 'HƯỚNG DẪN',
+        GUIDE_DESC_NORMAL:
+            'Xóa hàng để ghi điểm.\nTốc độ rơi cố định — không tăng cấp.\nPhù hợp chơi nhanh.',
+        GUIDE_DESC_MARATHON:
+            'Cứ 15 hàng xóa, cấp và tốc độ rơi tăng.\nCố sống lâu và phá kỉ lục điểm của bạn.',
+        GUIDE_DESC_INVISIBILITY:
+            'Giống Marathon nhưng gạch đã khóa ẩn 15 giây rồi hiện 5 giây.\nTốc độ tăng chậm hơn Marathon — hãy tính trước khi không nhìn thấy block.',
         GO_PREFAB_TITLE: 'Kết thúc',
         GO_PREFAB_HIGH_SCORE: 'Kỉ lục',
         GO_PREFAB_SCORE_LABEL: 'Điểm',
