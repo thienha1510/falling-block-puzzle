@@ -1,18 +1,18 @@
 {
-  "title": "falling-block-puzzle",
+  "title": "fallingblockpuzzle",
   "packageName": "org.cocos2d.demo",
   "startScene": "6f00dfe6-1e7c-4478-9fce-d03249bbc034",
   "excludeScenes": [],
   "orientation": {
-    "landscapeRight": true,
-    "landscapeLeft": true,
-    "portrait": false,
+    "landscapeRight": false,
+    "landscapeLeft": false,
+    "portrait": true,
     "upsideDown": false
   },
   "webOrientation": "portrait",
   "inlineSpriteFrames": true,
   "inlineSpriteFrames_native": true,
-  "mainCompressionType": "default",
+  "mainCompressionType": "merge_all_json",
   "mainIsRemote": false,
   "optimizeHotUpdate": false,
   "md5Cache": true,
@@ -22,7 +22,7 @@
   "zipCompressJs": true,
   "fb-instant-games": {},
   "android": {
-    "packageName": "org.cocos2d.demo",
+    "packageName": "fallingblockpuzzle.demo",
     "REMOTE_SERVER_ROOT": ""
   },
   "ios": {
@@ -38,16 +38,16 @@
   },
   "win32": {
     "REMOTE_SERVER_ROOT": "",
-    "width": 1280,
-    "height": 720
+    "width": 720,
+    "height": 1280
   },
   "android-instant": {
-    "packageName": "org.cocos2d.demo",
-    "REMOTE_SERVER_ROOT": "",
+    "packageName": "fallingblockpuzzle.demo",
+    "REMOTE_SERVER_ROOT": "http://10.79.24.240:7456/preview-android-instant/",
     "pathPattern": "",
     "scheme": "https",
     "host": "",
-    "skipRecord": false,
+    "skipRecord": true,
     "recordPath": ""
   },
   "appBundle": false,

@@ -1,2 +1,2 @@
-# Falling Block Puzzle
- Popular Game using TypeScript and Cocos Creator
+# tetris
+ Popular Tetris Game using TypeScript and Cocos Creator
