@@ -434,10 +434,18 @@ export class Renderer {
         const trailLeft = minCx * w + pad;
         const trailWidth = Math.max(1, (maxCx + 1) * w - pad - trailLeft);
         const trailAttachY = minBottomY;
+        const minFrac = dt.GRADIENT_MIN_ALPHA_FRACTION != null ? dt.GRADIENT_MIN_ALPHA_FRACTION : 0.5;
+        const underlayA = Math.floor(minFrac * 0.85 * dt.GRADIENT_MAX_ALPHA * alphaMul * baseMul);
+        if (underlayA >= 4) {
+            target.fillColor = new cc.Color(glow.r, glow.g, glow.b, underlayA);
+            target.rect(trailLeft, trailAttachY, trailWidth, heightPx);
+            target.fill();
+        }
 
         for (let si = 0; si < steps; si++) {
             const t = si / (steps - 1 || 1);
-            const a = Math.floor((1 - t) * dt.GRADIENT_MAX_ALPHA * alphaMul * baseMul);
+            const alphaT = minFrac + (1 - minFrac) * (1 - t);
+            const a = Math.floor(alphaT * dt.GRADIENT_MAX_ALPHA * alphaMul * baseMul);
             if (a < 4) {
                 continue;
             }
@@ -447,10 +455,11 @@ export class Renderer {
         }
         target.fill();
 
+        const rimBoost = dt.RIM_BRIGHTEN != null ? dt.RIM_BRIGHTEN : 65;
         target.fillColor = new cc.Color(
-            Math.min(255, base.r + 40),
-            Math.min(255, base.g + 40),
-            Math.min(255, base.b + 40),
+            Math.min(255, base.r + rimBoost),
+            Math.min(255, base.g + rimBoost),
+            Math.min(255, base.b + rimBoost),
             Math.floor(dt.RIM_ALPHA * alphaMul)
         );
         target.rect(trailLeft, trailAttachY - 1, trailWidth, 3);

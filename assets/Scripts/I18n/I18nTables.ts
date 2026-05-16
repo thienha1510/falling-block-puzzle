@@ -22,8 +22,8 @@ export const I18N_STRINGS = {
         LOADING_MODE_INVISIBILITY: 'Invisibility Mode',
         TOAST_INVISIBILITY_LOCKED:
             'Invisibility mode is locked.\nReach a Marathon best score over 500 to unlock.',
-        HELP_GESTURE_1: 'Tap to rotate  •  Swipe to move',
-        HELP_GESTURE_2: 'Flick down: hard drop  •  Drag down slowly: soft drop',
+        HELP_GESTURE_1: 'Tap/Z to rotate  •  Swipe/WADS to move',
+        HELP_GESTURE_2: 'Flick down/Space: hard drop  •  Drag down slowly/S: soft drop',
         HELP_GESTURE_3: 'Tap HOLD panel to store the current piece',
         GUIDE_TITLE: 'GUIDE',
         GUIDE_DESC_NORMAL:
@@ -65,8 +65,8 @@ export const I18N_STRINGS = {
         LOADING_MODE_INVISIBILITY: 'Chế độ tàng hình',
         TOAST_INVISIBILITY_LOCKED:
             'Chế độ tàng hình chưa mở khóa.\nCần đạt kỉ lục Marathon trên 500 điểm.',
-        HELP_GESTURE_1: 'Chạm để xoay  •  Vuốt để di chuyển',
-        HELP_GESTURE_2: 'Vuốt xuống nhanh: rơi tức thì  •  Vuốt xuống chậm: rơi chậm',
+        HELP_GESTURE_1: 'Chạm/Z để xoay  •  Vuốt/WADS để di chuyển',
+        HELP_GESTURE_2: 'Vuốt xuống nhanh/Space: rơi tức thì  •  Vuốt xuống chậm/S: rơi chậm',
         HELP_GESTURE_3: 'Chạm ô GIỮ để cất gạch hiện tại',
         GUIDE_TITLE: 'HƯỚNG DẪN',
         GUIDE_DESC_NORMAL:

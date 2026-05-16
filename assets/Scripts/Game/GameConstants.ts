@@ -209,9 +209,12 @@ export const GameConstants = {
         GRADIENT_STEPS: 18,
         RIM_ALPHA: 255,
         GRADIENT_MAX_ALPHA: 255,
-        GRADIENT_TOP_BLEND: 0.12,
-        GLOW_LIGHTEN: 0.35,
-        GRADIENT_BASE_ALPHA_MUL: 1.25,
+        /** Alpha tối thiểu ở đỉnh vệt (0–1) — tránh mờ quá. */
+        GRADIENT_MIN_ALPHA_FRACTION: 0.5,
+        GRADIENT_TOP_BLEND: 0.2,
+        GLOW_LIGHTEN: 0.5,
+        GRADIENT_BASE_ALPHA_MUL: 1.55,
+        RIM_BRIGHTEN: 65,
     },
 };
 
