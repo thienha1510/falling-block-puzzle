@@ -2680,7 +2680,7 @@
     "_dstBlendFactor": 771,
     "_string": "Made by Nguyen Thien Ha",
     "_N$string": "Made by Nguyen Thien Ha",
-    "_fontSize": 20,
+    "_fontSize": 22,
     "_lineHeight": 50,
     "_enableWrapText": true,
     "_N$file": {
@@ -2794,6 +2794,9 @@
     },
     "sfxSettingOpen": {
       "__uuid__": "328af66f-c8d5-4c84-9eff-ea57672dff5c"
+    },
+    "toastPrefab": {
+      "__uuid__": "5ed80b33-6c2a-4004-b405-40cc55170d77"
     },
     "_id": "7ertAswg9HFJpnot1cOd+T"
   }

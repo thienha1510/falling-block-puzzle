@@ -20,9 +20,11 @@ export const I18N_STRINGS = {
         LOADING_MODE_NORMAL: 'Normal Mode',
         LOADING_MODE_MARATHON: 'Marathon Mode',
         LOADING_MODE_INVISIBILITY: 'Invisibility Mode',
+        TOAST_INVISIBILITY_LOCKED:
+            'Invisibility mode is locked.\nReach a Marathon best score over 500 to unlock.',
         HELP_GESTURE_1: 'Tap to rotate  •  Swipe to move',
         HELP_GESTURE_2: 'Flick down: hard drop  •  Drag down slowly: soft drop',
-        HELP_GESTURE_3: 'Double tap or HOLD panel: hold piece',
+        HELP_GESTURE_3: 'Tap HOLD panel to store the current piece',
         GUIDE_TITLE: 'GUIDE',
         GUIDE_DESC_NORMAL:
             'Clear lines to score.\nFall speed stays fixed — no levels.\nGreat for quick practice.',
@@ -61,9 +63,11 @@ export const I18N_STRINGS = {
         LOADING_MODE_NORMAL: 'Chế độ thường',
         LOADING_MODE_MARATHON: 'Chế độ Marathon',
         LOADING_MODE_INVISIBILITY: 'Chế độ tàng hình',
+        TOAST_INVISIBILITY_LOCKED:
+            'Chế độ tàng hình chưa mở khóa.\nCần đạt kỉ lục Marathon trên 500 điểm.',
         HELP_GESTURE_1: 'Chạm để xoay  •  Vuốt để di chuyển',
         HELP_GESTURE_2: 'Vuốt xuống nhanh: rơi tức thì  •  Vuốt xuống chậm: rơi chậm',
-        HELP_GESTURE_3: 'Chạm đúp hoặc ô GIỮ: giữ gạch',
+        HELP_GESTURE_3: 'Chạm ô GIỮ để cất gạch hiện tại',
         GUIDE_TITLE: 'HƯỚNG DẪN',
         GUIDE_DESC_NORMAL:
             'Xóa hàng để ghi điểm.\nTốc độ rơi cố định — không tăng cấp.\nPhù hợp chơi nhanh.',

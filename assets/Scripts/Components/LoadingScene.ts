@@ -5,7 +5,7 @@
  *              — Về từ chơi (GameMain): bỏ (1)(2), vào thẳng chọn chế độ (`markEnterLoadingFromGameHome`).
  */
 
-import { GameConstants, hexToColor } from '../Game/GameConstants';
+import { GameConstants, hexToColor, isInvisibilityModeUnlocked } from '../Game/GameConstants';
 import MusicBg from '../Game/MusicBg';
 import { AudioMgr } from '../Game/AudioMgr';
 import SettingPanelController from './SettingPanelController';
@@ -13,6 +13,7 @@ import { I18n } from '../I18n/I18n';
 import { applyLoadingHomescreenLocale, applyLoadingSceneModeLabels, applyLoadingSceneTitleLocale } from '../I18n/GameplayLocaleApply';
 import { ensureBgBhBlurOnCanvas } from '../Generic/BgBhBlurSprite';
 import GuidePanelController from './GuidePanelController';
+import ToastController from './ToastController';
 
 /** Letterbox gần màu sprite `bg` (RGB 34,80,200). */
 const LOADING_PANEL_BLUE = '#2250C8';
@@ -30,6 +31,8 @@ const CONTINUE_FONT_MIN = 35;
 const CONTINUE_FONT_MAX = 40;
 /** Một vòng phóng → thu (giây). Sóng cos — đạo hậu bằng 0 ở cực đại/cực tiểu, tránh giật so với sóng tam giác tuyến tính. */
 const CONTINUE_PULSE_PERIOD_SEC = 1.45;
+/** Toast khi bấm Invisibility chưa đủ điều kiện mở khóa. */
+const INVISIBILITY_LOCKED_TOAST_SECONDS = 2;
 
 const { ccclass, property } = cc._decorator;
 
@@ -115,6 +118,12 @@ export default class LoadingScene extends cc.Component {
     @property({ type: cc.AudioClip, tooltip: 'Click.mp3 — mở Setting trên màn Loading.' })
     private sfxSettingOpen: cc.AudioClip | null = null;
 
+    @property({
+        type: cc.Prefab,
+        tooltip: 'Prefab Toast — hiện 2s khi bấm Invisibility khi chưa đạt kỉ lục Marathon > 500.',
+    })
+    private toastPrefab: cc.Prefab | null = null;
+
     private mLoadingDotsTimer: number = -1;
     private mLoadingDotsIndex = 0;
     private mLoadingStatusLabel: cc.Label | null = null;
@@ -131,6 +140,7 @@ export default class LoadingScene extends cc.Component {
     /** Nút mở Setting — giữ ref để onDestroy không duyệt cây khi node đã destroy. */
     private mSettingTapTarget: cc.Node | null = null;
     private mLocaleUnsub: (() => void) | null = null;
+    private mToastCtrl: ToastController | null = null;
 
     protected onLoad(): void {
         this.mSettingTapTarget = null;
@@ -237,6 +247,10 @@ export default class LoadingScene extends cc.Component {
             this.mLocaleUnsub();
             this.mLocaleUnsub = null;
         }
+        if (this.mToastCtrl && this.mToastCtrl.isValid) {
+            this.mToastCtrl.hide();
+        }
+        this.mToastCtrl = null;
     }
 
     /** Gắn clip UI cho AudioMgr trước khi vào marathonScene (Inspector trên LoadingScene). */
@@ -614,9 +628,13 @@ export default class LoadingScene extends cc.Component {
         const leaf = this.resolveInvisibilityLeaf(canvas);
         if (btnRoot && btnRoot.isValid) {
             btnRoot.active = true;
+            btnRoot.opacity = 255;
         }
         if (leaf && leaf.isValid) {
             leaf.active = true;
+            if (!btnRoot || !btnRoot.isValid) {
+                leaf.opacity = 255;
+            }
         }
         const btnComp =
             (leaf && leaf.getComponent(cc.Button)) ||
@@ -625,8 +643,78 @@ export default class LoadingScene extends cc.Component {
         if (btnComp) {
             btnComp.interactable = true;
         }
+        this.applyInvisibilityModeLabel(canvas);
         const tapTarget = btnRoot || leaf;
         return tapTarget && tapTarget.isValid ? tapTarget : leaf;
+    }
+
+    /** Nhãn nút Invisibility — luôn tên chế độ; điều kiện mở khóa chỉ hiện trong Toast. */
+    private applyInvisibilityModeLabel(canvas: cc.Node): void {
+        const leaf = this.resolveInvisibilityLeaf(canvas);
+        const root = this.resolveBtnInvisibilityRoot(canvas);
+        const text = I18n.t('LOADING_MODE_INVISIBILITY');
+        const nodes: cc.Node[] = [];
+        if (leaf && leaf.isValid) {
+            nodes.push(leaf);
+        }
+        if (root && root.isValid && nodes.indexOf(root) < 0) {
+            nodes.push(root);
+        }
+        for (let i = 0; i < nodes.length; i++) {
+            const lab = nodes[i].getComponent(cc.Label) || nodes[i].getComponentInChildren(cc.Label);
+            if (lab) {
+                lab.string = text;
+            }
+        }
+    }
+
+    /** Chế độ tàng hình khóa: chạm nút → Toast 2s, không load scene. */
+    private bindInvisibilityLockedTap(_canvas: cc.Node, tapTarget: cc.Node, leaf: cc.Node | null): void {
+        const self = this;
+        const targets: cc.Node[] = [];
+        if (tapTarget && tapTarget.isValid) {
+            targets.push(tapTarget);
+        }
+        if (leaf && leaf.isValid && targets.indexOf(leaf) < 0) {
+            targets.push(leaf);
+        }
+        const onTap = function (): void {
+            self.showInvisibilityLockedToast();
+        };
+        for (let i = 0; i < targets.length; i++) {
+            const n = targets[i];
+            n.off(cc.Node.EventType.TOUCH_END);
+            n.on(cc.Node.EventType.TOUCH_END, onTap);
+        }
+    }
+
+    private ensureToastController(): ToastController | null {
+        if (this.mToastCtrl && this.mToastCtrl.isValid) {
+            return this.mToastCtrl;
+        }
+        if (!this.toastPrefab) {
+            return null;
+        }
+        let host = this.node.getChildByName('ToastHost');
+        if (!host || !host.isValid) {
+            host = new cc.Node('ToastHost');
+            host.zIndex = 400;
+            this.node.addChild(host);
+        }
+        const inst = cc.instantiate(this.toastPrefab);
+        host.addChild(inst);
+        this.mToastCtrl = inst.addComponent(ToastController);
+        return this.mToastCtrl;
+    }
+
+    private showInvisibilityLockedToast(): void {
+        const msg = I18n.t('TOAST_INVISIBILITY_LOCKED');
+        const ctrl = this.ensureToastController();
+        if (ctrl) {
+            ctrl.show(msg, INVISIBILITY_LOCKED_TOAST_SECONDS);
+            return;
+        }
+        cc.warn('[LoadingScene] toastPrefab chưa gán —', msg);
     }
 
     private resolveBtnContinueRoot(canvas: cc.Node): cc.Node | null {
@@ -823,7 +911,11 @@ export default class LoadingScene extends cc.Component {
             this.bindPlayLikeNavigation(canvas, tapNor, this.resolvePlayNorLeaf(canvas), SCENE_NORMAL);
         }
         if (tapInv) {
-            this.bindPlayLikeNavigation(canvas, tapInv, this.resolveInvisibilityLeaf(canvas), SCENE_INVISIBILITY);
+            if (isInvisibilityModeUnlocked()) {
+                this.bindPlayLikeNavigation(canvas, tapInv, this.resolveInvisibilityLeaf(canvas), SCENE_INVISIBILITY);
+            } else {
+                this.bindInvisibilityLockedTap(canvas, tapInv, this.resolveInvisibilityLeaf(canvas));
+            }
         }
         if (!tapTarget && !tapNor && !tapInv) {
             cc.warn(

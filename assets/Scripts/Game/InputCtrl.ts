@@ -7,7 +7,7 @@
  *                - swipe / drag left–right       => move one cell that direction
  *                - swipe down (fast flick)       => hard drop
  *                - swipe down (slow drag)        => continuous soft drop while dragging
- *                - double tap / double click      => hold piece
+ *                - hold: chỉ qua ô Hold trên HUD (không double-tap / phím)
  *
  *              Desktop (Windows/Mac exe, web trên PC): engine thường **không** đưa chuột vào
  *              `TOUCH_*` — dùng `MOUSE_*` trên cùng node. Mobile vẫn chỉ dùng `TOUCH_*`.
@@ -18,7 +18,6 @@
  *                - DOWN / S    => soft drop (held)
  *                - UP / W      => hard drop (one-shot)
  *                - Z           => rotate clockwise
- *                - SHIFT / C   => hold
  *                - SPACE       => hard drop
  *                - P / ESC     => pause toggle
  *                - R           => restart (when game over)
@@ -33,7 +32,6 @@ export interface InputHandlers {
     softDropStart(): void;
     softDropStop(): void;
     hardDrop(): void;
-    holdPiece(): void;
     togglePause(): void;
     restart(): void;
 }
@@ -47,7 +45,6 @@ export class InputCtrl {
     private touchLastPos: cc.Vec2 | null = null;
     private touchStartTime: number = 0;
     private softDropActive: boolean = false;
-    private lastTapTime: number = 0;
     private softDropDragStartY: number = 0;
     private touchDidSwipe: boolean = false;
     private touchHorizAccum: number = 0;
@@ -216,10 +213,6 @@ export class InputCtrl {
                 this.handlers.rotateCW();
                 break;
 
-            case KEY.shift:
-            case KEY.c:
-                this.handlers.holdPiece();
-                break;
         }
     }
 
@@ -363,15 +356,7 @@ export class InputCtrl {
         const tapMaxDistPx = GameConstants.GESTURE.TAP_MAX_DIST_PX * cc.view.getScaleX();
 
         if (!this.touchDidSwipe && elapsed <= GameConstants.GESTURE.TAP_MAX_TIME_MS && totalMag <= tapMaxDistPx) {
-            // Tap: rotate, but check for double-tap to hold
-            const now = Date.now();
-            if (now - this.lastTapTime <= GameConstants.GESTURE.DOUBLE_TAP_MAX_GAP_MS) {
-                this.handlers.holdPiece();
-                this.lastTapTime = 0;
-            } else {
-                this.handlers.rotateCW();
-                this.lastTapTime = now;
-            }
+            this.handlers.rotateCW();
         } else if (elapsed <= GameConstants.GESTURE.SWIPE_MAX_TIME_MS) {
             // Treat as swipe — direction by dominant axis
             const minSwipeX = GameConstants.GESTURE.SWIPE_MIN_DIST_PX * cc.view.getScaleX();

@@ -19,9 +19,20 @@ import SettingPanelController from '../Components/SettingPanelController';
 import LoadingScene from '../Components/LoadingScene';
 import { Bag } from './Bag';
 import { Board } from './Board';
-import { GameConstants, GameMode, GameState, PieceKind, hexToColor, storageBestScoreKey } from './GameConstants';
+import {
+    GameConstants,
+    GameMode,
+    GameState,
+    PieceKind,
+    hexToColor,
+    loadPersistedBestScore,
+    storageBestScoreKey,
+} from './GameConstants';
 import { marathonGravitySecondsForLevel, invisibilityGravitySecondsForLevel, normalGravitySeconds, scoreMultiplierLevel } from './GameplayRules';
 import { applyMarathonScenePlaceholderLayout } from './MarathonSceneLayout';
+import { DropTrailFx } from './DropTrailFx';
+import { trailCellsFromPiece } from './DropTrailView';
+import { GhostPieceView } from './GhostPieceView';
 import { InputCtrl, InputHandlers } from './InputCtrl';
 import { Renderer } from './Renderer';
 import { Tetromino, PieceState } from './Tetromino';
@@ -146,6 +157,8 @@ export default class GameMain extends cc.Component {
     private ui: UIRefs = null as any;
     private board: Board = null as any;
     private renderer: Renderer = null as any;
+    private dropTrails: DropTrailFx = new DropTrailFx();
+    private ghostPieceView: GhostPieceView | null = null;
     private bag: Bag = null as any;
     private input: InputCtrl = null as any;
 
@@ -159,7 +172,7 @@ export default class GameMain extends cc.Component {
     private softDropActive: boolean = false;
 
     private lockTimer: number = 0;
-    private lockResets: number = 0;
+    /** Đang chạm đáy/khối — đếm LOCK_DELAY_SECONDS rồi khóa. */
     private lockArmed: boolean = false;
 
     private clearAnimTimer: number = 0;
@@ -234,7 +247,7 @@ export default class GameMain extends cc.Component {
         this.ensureBackgroundMusic();
         this.bindGameplaySfx();
 
-        this.bestScore = this.loadPersistedBestScore();
+        this.bestScore = loadPersistedBestScore(this.gameMode);
 
         // Build all UI
         const self = this;
@@ -278,19 +291,22 @@ export default class GameMain extends cc.Component {
         this.renderer = new Renderer(
             this.board,
             this.ui.boardGraphics,
+            this.ui.boardActiveGraphics,
             GameConstants.BLOCK_WIDTH,
             GameConstants.BLOCK_HEIGHT
         );
+        this.initGhostPieceView();
 
         // Wire input
         const handlers: InputHandlers = {
             moveLeft: function () { self.tryMove(-1); },
             moveRight: function () { self.tryMove(+1); },
             rotateCW: function () { self.tryRotate(); },
-            softDropStart: function () { self.softDropActive = true; },
+            softDropStart: function () {
+                self.softDropActive = true;
+            },
             softDropStop: function () { self.softDropActive = false; },
             hardDrop: function () { self.tryHardDrop(); },
-            holdPiece: function () { self.tryHold(); },
             togglePause: function () { self.togglePause(); },
             restart: function () {
                 if (self.state === GameState.GameOver) self.restartGame();
@@ -777,7 +793,6 @@ export default class GameMain extends cc.Component {
         }
         this.gravityTimer = 0;
         this.lockTimer = 0;
-        this.lockResets = 0;
         this.lockArmed = false;
         this.holdKind = null;
         this.holdUsedThisDrop = false;
@@ -788,6 +803,10 @@ export default class GameMain extends cc.Component {
 
         this.board.clear();
         this.bag.reset();
+        this.dropTrails.clear();
+        if (this.ghostPieceView) {
+            this.ghostPieceView.hide();
+        }
 
         this.refreshHUD();
         UIBuilder.drawHoldPreview(this.ui, null);
@@ -854,6 +873,10 @@ export default class GameMain extends cc.Component {
         this.softDropActive = false;
         this.active = null;
         this.ghostY = null;
+        this.dropTrails.clear();
+        if (this.ghostPieceView) {
+            this.ghostPieceView.hide();
+        }
 
         if (this.score > this.bestScore) {
             this.bestScore = this.score;
@@ -901,7 +924,6 @@ export default class GameMain extends cc.Component {
         this.active = state;
         this.holdUsedThisDrop = false;
         this.lockTimer = 0;
-        this.lockResets = 0;
         this.lockArmed = false;
         this.gravityTimer = 0;
 
@@ -973,7 +995,11 @@ export default class GameMain extends cc.Component {
 
     private tryHardDrop(): void {
         if (!this.canPlay() || !this.active) return;
+        const startY = this.active.y;
         const dropY = this.board.computeDropY(this.active);
+        if (dropY < startY) {
+            this.dropTrails.spawnHardDrop(this.active, startY, dropY);
+        }
         this.active.y = dropY;
         this.lockPieceNow();
     }
@@ -1014,13 +1040,6 @@ export default class GameMain extends cc.Component {
             }
         }
 
-        // Otherwise allow a limited number of lock-delay resets when re-moved while armed.
-        if (this.lockArmed && reset) {
-            if (this.lockResets < GameConstants.LOCK_RESET_LIMIT) {
-                this.lockTimer = 0;
-                this.lockResets++;
-            }
-        }
     }
 
     private refreshGhost(): void {
@@ -1106,6 +1125,23 @@ export default class GameMain extends cc.Component {
                 (Date.now() - this.mInvisGroundTouchStartMs) * 0.001 < graceSec;
             invisActiveGhostVisible = revealPhase || belowFloating || inTouchGrace;
         }
+        const invisOn =
+            typeof invisLockedVisible === 'boolean' ||
+            typeof invisActiveGhostVisible === 'boolean';
+        const floatVisible = !invisOn || invisActiveGhostVisible !== false;
+
+        const softDropTrailActive =
+            this.softDropActive &&
+            !!active &&
+            this.state === GameState.Running &&
+            floatVisible &&
+            this.board.canPlace({
+                kind: active.kind,
+                rotation: active.rotation,
+                x: active.x,
+                y: active.y - 1,
+            });
+
         this.renderer.drawAll({
             active,
             ghostY,
@@ -1115,7 +1151,43 @@ export default class GameMain extends cc.Component {
             invisibilityThinGrid: this.gameMode === GameMode.Invisibility,
             invisLockedVisible,
             invisActiveGhostVisible,
+            dropTrails: this.dropTrails.getSegments(),
+            softDropTrailActive,
         });
+
+        if (this.ghostPieceView) {
+            if (
+                floatVisible &&
+                active &&
+                typeof ghostY === 'number' &&
+                invisActiveGhostVisible !== false
+            ) {
+                const ghostState: PieceState = {
+                    kind: active.kind,
+                    rotation: active.rotation,
+                    x: active.x,
+                    y: ghostY,
+                };
+                const ghostCells = trailCellsFromPiece(ghostState, this.board.visibleRows);
+                if (ghostCells.length > 0) {
+                    this.ghostPieceView.sync(ghostCells);
+                } else {
+                    this.ghostPieceView.hide();
+                }
+            } else {
+                this.ghostPieceView.hide();
+            }
+        }
+
+    }
+
+    private initGhostPieceView(): void {
+        const boardNode = this.ui.boardGraphics.node;
+        this.ghostPieceView = new GhostPieceView(
+            boardNode,
+            GameConstants.BLOCK_WIDTH,
+            GameConstants.BLOCK_HEIGHT
+        );
     }
 
     private redrawGameplayBoard(): void {
@@ -1129,6 +1201,8 @@ export default class GameMain extends cc.Component {
     // ============================================================
     private lockPieceNow(): void {
         if (!this.active) return;
+        this.lockArmed = false;
+        this.lockTimer = 0;
         const cleared = this.board.lockPiece(this.active);
         AudioMgr.instance().playDrop();
 
@@ -1217,6 +1291,8 @@ export default class GameMain extends cc.Component {
             return;
         }
 
+        this.dropTrails.update(dt);
+
         if (this.state === GameState.LineClear) {
             this.clearAnimTimer += dt;
             const t = Math.min(1, this.clearAnimTimer / GameConstants.ANIM.LINE_CLEAR_DURATION);
@@ -1234,7 +1310,6 @@ export default class GameMain extends cc.Component {
             return;
         }
 
-        // Running
         if (this.input) this.input.update(dt);
 
         if (this.gameMode === GameMode.Invisibility && this.state === GameState.Running) {
@@ -1262,7 +1337,6 @@ export default class GameMain extends cc.Component {
                     moved = this.gravityTick();
                 }
                 if (!moved) {
-                    // Check for lock condition
                     if (!this.lockArmed) {
                         this.lockArmed = true;
                         this.lockTimer = 0;
@@ -1292,19 +1366,6 @@ export default class GameMain extends cc.Component {
     // ============================================================
     // Helpers
     // ============================================================
-    private loadPersistedBestScore(): number {
-        try {
-            const primary = cc.sys.localStorage.getItem(storageBestScoreKey(this.gameMode));
-            if (primary != null && primary !== '') {
-                const n = parseInt(primary, 10);
-                if (!isNaN(n)) {
-                    return Math.max(0, n);
-                }
-            }
-        } catch (e) { /* ignore */ }
-        return 0;
-    }
-
     /** Prefer scene asset name so Normal/Marathon matches `normalScene` / `marathonScene` even if `gameMode` in .fire is wrong. */
     private resolveGameModeFromSceneName(): GameMode {
         const serial = this.gameMode;

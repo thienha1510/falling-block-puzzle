@@ -370,7 +370,7 @@ export function applyLoadingSceneModeLabels(canvas: cc.Node): void {
     }
     setLabelUnderPlayBranch(canvas, ['btn_play_nor', 'btn_Normal'], ['PlayNor'], 'LOADING_MODE_NORMAL');
     setLabelUnderPlayBranch(canvas, ['btn_play', 'btn_Marathon'], ['PlayMara', 'Play'], 'LOADING_MODE_MARATHON');
-    setLabelUnderPlayBranch(canvas, ['btn_Invisibility'], ['PlayInvisibility'], 'LOADING_MODE_INVISIBILITY');
+    setLabelUnderPlayBranch(canvas, ['btn_Invisibility'], ['PlayInvisibility', 'PlayInv'], 'LOADING_MODE_INVISIBILITY');
 }
 
 /** LoadingScene: overlay được code tạo dưới Canvas. */

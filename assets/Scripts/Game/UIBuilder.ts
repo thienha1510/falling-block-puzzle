@@ -23,7 +23,8 @@ const SYSTEM_FONT_FAMILY = 'Helvetica, Arial, sans-serif';
 export interface UIRefs {
     bgRoot: cc.Node;
     boardRoot: cc.Node;        // BoardRoot, anchored at center
-    boardGraphics: cc.Graphics; // child of boardRoot, positioned at (-w/2, -h/2)
+    boardGraphics: cc.Graphics; // grid + locked blocks
+    boardActiveGraphics: cc.Graphics; // falling piece (above ghost sprites)
     boardTouchNode: cc.Node;   // catches gameplay gestures
     holdRoot: cc.Node;
     holdGraphics: cc.Graphics;
@@ -247,6 +248,14 @@ export class UIBuilder {
         stripGraphicsOnNode(boardGraphicsNode);
         const boardGraphics = boardGraphicsNode.addComponent(cc.Graphics);
 
+        const boardActiveGfxNode = ensureChild(boardGraphicsNode, 'BoardActiveGraphics', cc.v2(0, 0));
+        boardActiveGfxNode.active = true;
+        boardActiveGfxNode.setAnchorPoint(0, 0);
+        boardActiveGfxNode.setPosition(0, 0);
+        boardActiveGfxNode.zIndex = 2;
+        stripGraphicsOnNode(boardActiveGfxNode);
+        const boardActiveGraphics = boardActiveGfxNode.addComponent(cc.Graphics);
+
         // ----- Hold panel (left) -----
         // Scene may name this root "Hold" or "HoldPanel".
         const holdRoot =
@@ -419,6 +428,7 @@ export class UIBuilder {
             bgRoot: bgRoot,
             boardRoot: boardRoot,
             boardGraphics: boardGraphics,
+            boardActiveGraphics: boardActiveGraphics,
             boardTouchNode: boardTouchNode,
             holdRoot: holdRoot,
             holdGraphics: holdGraphics,

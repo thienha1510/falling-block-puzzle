@@ -111,8 +111,8 @@ export const GameConstants = {
     GRAVITY_DECREMENT_PER_LEVEL: 0.07,
     MIN_GRAVITY_SECONDS: 0.06,
     SOFT_DROP_GRAVITY_SECONDS: 0.06,
+    /** Sau khi chạm đáy/khối khác: chờ khoảng này rồi mới cố định (vẫn xoay/di chuyển trong lúc chờ). */
     LOCK_DELAY_SECONDS: 0.5,
-    LOCK_RESET_LIMIT: 15, // SRS-style lock reset count
 
     // ----- Movement repeat (DAS-like for keyboard) -----
     DAS_DELAY_SECONDS: 0.16,
@@ -149,6 +149,8 @@ export const GameConstants = {
     INVISIBILITY_ACTIVE_GRACE_AFTER_TOUCH_SECONDS: 0.25,
     /** Normal mode: scoring uses this level multiplier only (no progression). */
     NORMAL_MODE_FIXED_SCORE_LEVEL: 1,
+    /** Invisibility chỉ mở khi best Marathon > ngưỡng này (<= ngưỡng = khóa). */
+    INVISIBILITY_UNLOCK_MARATHON_BEST: 500,
 
     /** @deprecated Old Marathon step (lines / 10); kept for reference only. */
     LINES_PER_LEVEL: 10,
@@ -192,6 +194,25 @@ export const GameConstants = {
         OVERLAY_FADE_DURATION: 0.18,
         SCORE_TWEEN_DURATION: 0.22,
     },
+
+    /** Ghost — khối preview chỗ đặt (trắng, không dùng texture). */
+    GHOST: {
+        /** 0–1 opacity (0.6 = 60%). */
+        OPACITY: 0.6,
+    },
+
+    /** Hard / soft drop — một vệt liền, màu khối, gradient mờ lên trên. */
+    DROP_TRAIL: {
+        FADE_SECONDS: 0.38,
+        SOFT_TRAIL_HEIGHT_CELLS: 3,
+        HARD_TRAIL_HEIGHT_CELLS: 6,
+        GRADIENT_STEPS: 18,
+        RIM_ALPHA: 255,
+        GRADIENT_MAX_ALPHA: 255,
+        GRADIENT_TOP_BLEND: 0.12,
+        GLOW_LIGHTEN: 0.35,
+        GRADIENT_BASE_ALPHA_MUL: 1.25,
+    },
 };
 
 export function getBoardPixelSize(): { width: number; height: number } {
@@ -200,6 +221,27 @@ export function getBoardPixelSize(): { width: number; height: number } {
 
 export function getBlockCellSize(): { width: number; height: number } {
     return { width: GameConstants.BLOCK_WIDTH, height: GameConstants.BLOCK_HEIGHT };
+}
+
+/** Đọc best score đã lưu cho một chế độ (0 nếu chưa có / lỗi parse). */
+export function loadPersistedBestScore(mode: GameMode): number {
+    try {
+        const raw = cc.sys.localStorage.getItem(storageBestScoreKey(mode));
+        if (raw != null && raw !== '') {
+            const n = parseInt(raw, 10);
+            if (!isNaN(n) && n >= 0) {
+                return n;
+            }
+        }
+    } catch (_e) {
+        // ignore
+    }
+    return 0;
+}
+
+/** Chế độ Invisibility: cần best Marathon > INVISIBILITY_UNLOCK_MARATHON_BEST. */
+export function isInvisibilityModeUnlocked(): boolean {
+    return loadPersistedBestScore(GameMode.Marathon) > GameConstants.INVISIBILITY_UNLOCK_MARATHON_BEST;
 }
 
 export function storageBestScoreKey(mode: GameMode): string {
