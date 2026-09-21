@@ -68,6 +68,8 @@ export class Renderer {
         dropTrails?: ReadonlyArray<DropTrailSegment>;
         /** Vệt soft drop (cùng màu khối). */
         softDropTrailActive?: boolean;
+        /** true = khối dùng BlockSpriteView; Graphics chỉ lưới / vệt / flash. */
+        useBlockSprites?: boolean;
     }): void {
         const g = this.g;
         const gActive = this.gActive;
@@ -78,6 +80,7 @@ export class Renderer {
         const rows = this.board.visibleRows;
         const bw = cols * this.blockW;
         const bh = rows * this.blockH;
+        const useSprites = opts.useBlockSprites === true;
 
         // IMPORTANT: Board background/frame are now editor-authored (sprite/layout nodes).
         // To avoid covering them, the renderer only draws gameplay blocks/overlays here.
@@ -106,8 +109,7 @@ export class Renderer {
             typeof opts.invisActiveGhostVisible === 'boolean';
         const lockedVisible = !invisOn || opts.invisLockedVisible !== false;
 
-        // Locked blocks — ô kề nhau không vẽ viền giữa (chỉ viền ngoài stack)
-        if (lockedVisible) {
+        if (!useSprites && lockedVisible) {
             this.drawAllLockedBlocks(0);
         }
 
@@ -115,44 +117,44 @@ export class Renderer {
 
         const fallLerp = Math.max(0, Math.min(1, opts.activeFallLerp != null ? opts.activeFallLerp : 0));
 
-        // Drop trails — lớp active, một vệt liền phía trên khối
-        if (opts.dropTrails && opts.dropTrails.length > 0) {
-            for (let ti = 0; ti < opts.dropTrails.length; ti++) {
-                const seg = opts.dropTrails[ti];
-                const trailCells: [number, number][] = [];
-                for (let ci = 0; ci < seg.cells.length; ci++) {
-                    if (seg.cells[ci][1] < rows) {
-                        trailCells.push(seg.cells[ci]);
-                    }
-                }
-                if (trailCells.length > 0) {
-                    this.drawClusterDropTrail(
-                        gActive,
-                        trailCells,
-                        seg.kind,
-                        seg.heightCells * this.blockH,
-                        seg.life,
-                        0
-                    );
-                }
-            }
-        }
-        if (opts.softDropTrailActive && floatVisible && opts.active) {
-            const softH = GameConstants.DROP_TRAIL.SOFT_TRAIL_HEIGHT_CELLS * this.blockH;
-            const cells = Tetromino.cells(opts.active);
-            const trailCells: [number, number][] = [];
-            for (let i = 0; i < cells.length; i++) {
-                if (cells[i][1] < rows) {
-                    trailCells.push([cells[i][0], cells[i][1]]);
-                }
-            }
-            if (trailCells.length > 0) {
-                this.drawClusterDropTrail(gActive, trailCells, opts.active.kind, softH, 1, fallLerp);
-            }
-        }
+        // --- Vệt sáng (drop trail) tạm tắt — không còn phù hợp với sprite block mới ---
+        // if (opts.dropTrails && opts.dropTrails.length > 0) {
+        //     for (let ti = 0; ti < opts.dropTrails.length; ti++) {
+        //         const seg = opts.dropTrails[ti];
+        //         const trailCells: [number, number][] = [];
+        //         for (let ci = 0; ci < seg.cells.length; ci++) {
+        //             if (seg.cells[ci][1] < rows) {
+        //                 trailCells.push(seg.cells[ci]);
+        //             }
+        //         }
+        //         if (trailCells.length > 0) {
+        //             this.drawClusterDropTrail(
+        //                 gActive,
+        //                 trailCells,
+        //                 seg.kind,
+        //                 seg.heightCells * this.blockH,
+        //                 seg.life,
+        //                 0
+        //             );
+        //         }
+        //     }
+        // }
+        // if (opts.softDropTrailActive && floatVisible && opts.active) {
+        //     const softH = GameConstants.DROP_TRAIL.SOFT_TRAIL_HEIGHT_CELLS * this.blockH;
+        //     const cells = Tetromino.cells(opts.active);
+        //     const trailCells: [number, number][] = [];
+        //     for (let i = 0; i < cells.length; i++) {
+        //         if (cells[i][1] < rows) {
+        //             trailCells.push([cells[i][0], cells[i][1]]);
+        //         }
+        //     }
+        //     if (trailCells.length > 0) {
+        //         this.drawClusterDropTrail(gActive, trailCells, opts.active.kind, softH, 1, fallLerp);
+        //     }
+        // }
 
-        // Active piece (ghost = GhostPieceView, zIndex above board graphics)
-        if (floatVisible && opts.active) {
+        // Active piece — Graphics fallback khi chưa load xong sprite
+        if (!useSprites && floatVisible && opts.active) {
             const cells = Tetromino.cells(opts.active);
             const visibleCells: [number, number][] = [];
             for (let i = 0; i < cells.length; i++) {

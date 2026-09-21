@@ -32,6 +32,7 @@ import { marathonGravitySecondsForLevel, invisibilityGravitySecondsForLevel, nor
 import { applyMarathonScenePlaceholderLayout } from './MarathonSceneLayout';
 import { DropTrailFx } from './DropTrailFx';
 import { trailCellsFromPiece } from './DropTrailView';
+import { BlockSpriteView, loadPieceBlockFrames } from './BlockSpriteView';
 import { GhostPieceView } from './GhostPieceView';
 import { InputCtrl, InputHandlers } from './InputCtrl';
 import { Renderer } from './Renderer';
@@ -159,6 +160,8 @@ export default class GameMain extends cc.Component {
     private renderer: Renderer = null as any;
     private dropTrails: DropTrailFx = new DropTrailFx();
     private ghostPieceView: GhostPieceView | null = null;
+    private blockSpriteView: BlockSpriteView | null = null;
+    private pieceBlockFrames: (cc.SpriteFrame | null)[] = [];
     private bag: Bag = null as any;
     private input: InputCtrl = null as any;
 
@@ -296,6 +299,7 @@ export default class GameMain extends cc.Component {
             GameConstants.BLOCK_HEIGHT
         );
         this.initGhostPieceView();
+        this.initBlockSprites();
 
         // Wire input
         const handlers: InputHandlers = {
@@ -307,6 +311,7 @@ export default class GameMain extends cc.Component {
             },
             softDropStop: function () { self.softDropActive = false; },
             hardDrop: function () { self.tryHardDrop(); },
+            hold: function () { self.tryHold(); },
             togglePause: function () { self.togglePause(); },
             restart: function () {
                 if (self.state === GameState.GameOver) self.restartGame();
@@ -804,6 +809,9 @@ export default class GameMain extends cc.Component {
         this.board.clear();
         this.bag.reset();
         this.dropTrails.clear();
+        if (this.blockSpriteView) {
+            this.blockSpriteView.clear();
+        }
         if (this.ghostPieceView) {
             this.ghostPieceView.hide();
         }
@@ -874,6 +882,9 @@ export default class GameMain extends cc.Component {
         this.active = null;
         this.ghostY = null;
         this.dropTrails.clear();
+        if (this.blockSpriteView) {
+            this.blockSpriteView.clear();
+        }
         if (this.ghostPieceView) {
             this.ghostPieceView.hide();
         }
@@ -995,11 +1006,12 @@ export default class GameMain extends cc.Component {
 
     private tryHardDrop(): void {
         if (!this.canPlay() || !this.active) return;
-        const startY = this.active.y;
+        // const startY = this.active.y;
         const dropY = this.board.computeDropY(this.active);
-        if (dropY < startY) {
-            this.dropTrails.spawnHardDrop(this.active, startY, dropY);
-        }
+        // Vệt sáng hard drop — tạm tắt
+        // if (dropY < startY) {
+        //     this.dropTrails.spawnHardDrop(this.active, startY, dropY);
+        // }
         this.active.y = dropY;
         this.lockPieceNow();
     }
@@ -1130,17 +1142,19 @@ export default class GameMain extends cc.Component {
             typeof invisActiveGhostVisible === 'boolean';
         const floatVisible = !invisOn || invisActiveGhostVisible !== false;
 
-        const softDropTrailActive =
-            this.softDropActive &&
-            !!active &&
-            this.state === GameState.Running &&
-            floatVisible &&
-            this.board.canPlace({
-                kind: active.kind,
-                rotation: active.rotation,
-                x: active.x,
-                y: active.y - 1,
-            });
+        // Vệt sáng soft/hard — tạm tắt (không phù hợp sprite block mới)
+        // const softDropTrailActive =
+        //     this.softDropActive &&
+        //     !!active &&
+        //     this.state === GameState.Running &&
+        //     floatVisible &&
+        //     this.board.canPlace({
+        //         kind: active.kind,
+        //         rotation: active.rotation,
+        //         x: active.x,
+        //         y: active.y - 1,
+        //     });
+        const softDropTrailActive = false;
 
         this.renderer.drawAll({
             active,
@@ -1151,9 +1165,22 @@ export default class GameMain extends cc.Component {
             invisibilityThinGrid: this.gameMode === GameMode.Invisibility,
             invisLockedVisible,
             invisActiveGhostVisible,
-            dropTrails: this.dropTrails.getSegments(),
+            // dropTrails: this.dropTrails.getSegments(),
+            dropTrails: [],
             softDropTrailActive,
+            useBlockSprites: !!(this.blockSpriteView && this.blockSpriteView.isReady),
         });
+
+        if (this.blockSpriteView && this.blockSpriteView.isReady) {
+            const lockedVisible = !invisOn || invisLockedVisible !== false;
+            this.blockSpriteView.sync({
+                board: this.board,
+                active: active || null,
+                fallLerp: o.activeFallLerp != null ? o.activeFallLerp : 0,
+                lockedVisible,
+                activeVisible: floatVisible,
+            });
+        }
 
         if (this.ghostPieceView) {
             if (
@@ -1188,6 +1215,28 @@ export default class GameMain extends cc.Component {
             GameConstants.BLOCK_WIDTH,
             GameConstants.BLOCK_HEIGHT
         );
+    }
+
+    private initBlockSprites(): void {
+        const self = this;
+        loadPieceBlockFrames(function (frames) {
+            self.pieceBlockFrames = frames;
+            if (!self.ui || !self.ui.boardGraphics) {
+                return;
+            }
+            self.blockSpriteView = new BlockSpriteView(
+                self.ui.boardGraphics.node,
+                frames,
+                GameConstants.BLOCK_WIDTH,
+                GameConstants.BLOCK_HEIGHT
+            );
+            UIBuilder.setPieceBlockFrames(frames);
+            UIBuilder.drawHoldPreview(self.ui, self.holdKind);
+            self.refreshNextPreview();
+            if (self.renderer) {
+                self.redrawGameplayBoard();
+            }
+        });
     }
 
     private redrawGameplayBoard(): void {
@@ -1291,7 +1340,7 @@ export default class GameMain extends cc.Component {
             return;
         }
 
-        this.dropTrails.update(dt);
+        // this.dropTrails.update(dt); // Vệt sáng — tạm tắt
 
         if (this.state === GameState.LineClear) {
             this.clearAnimTimer += dt;

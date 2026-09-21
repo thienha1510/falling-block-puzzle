@@ -16,9 +16,11 @@
 import { GameConstants, PieceKind, hexToColor } from './GameConstants';
 import { ensureChild, ensurePreferredChild, seedShellForPlayableCanvas, setUILayoutPositionsFromCode, stripGraphicsOnNode } from './UIHierarchy';
 import { getMarathonScenePlaceholderLayouts } from './MarathonSceneLayout';
+import { BlockSpriteView } from './BlockSpriteView';
 import { Renderer } from './Renderer';
 
 const SYSTEM_FONT_FAMILY = 'Helvetica, Arial, sans-serif';
+let sPieceBlockFrames: (cc.SpriteFrame | null)[] = [];
 
 export interface UIRefs {
     bgRoot: cc.Node;
@@ -74,6 +76,24 @@ const PANEL_CORNER_RADIUS = 14;
 export class UIBuilder {
     /** Mirrors last build: false = respect Editor Transform/size on HUD nodes where supported. */
     private static _layoutFromCode = false;
+
+    public static setPieceBlockFrames(frames: (cc.SpriteFrame | null)[]): void {
+        sPieceBlockFrames = frames || [];
+    }
+
+    public static getPieceBlockFrames(): (cc.SpriteFrame | null)[] {
+        return sPieceBlockFrames;
+    }
+
+    public static pieceBlockFramesReady(): boolean {
+        for (let i = 0; i < sPieceBlockFrames.length; i++) {
+            if (sPieceBlockFrames[i]) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private static calcPreviewBlockSize(panelW: number, panelH: number): number {
         // Tetromino preview max bounding box is 4×4 blocks.
         // Keep a small margin so it never touches the slot edges.
@@ -1126,6 +1146,7 @@ export class UIBuilder {
     public static drawHoldPreview(refs: UIRefs, kind: PieceKind | null): void {
         if (kind == null) {
             refs.holdGraphics.clear();
+            BlockSpriteView.clearPreviewChildren(refs.holdGraphics.node);
             return;
         }
         const gn = refs.holdGraphics.node;
@@ -1135,6 +1156,19 @@ export class UIBuilder {
         const w = sz.width > 1 ? sz.width : rw;
         const h = sz.height > 1 ? sz.height : Math.max(60, rh - 36);
         const bs = UIBuilder.calcPreviewBlockSize(w, h);
+        if (UIBuilder.pieceBlockFramesReady()) {
+            refs.holdGraphics.clear();
+            BlockSpriteView.drawPreview(
+                gn,
+                UIBuilder.getPieceBlockFrames(),
+                kind,
+                0,
+                { width: w, height: h },
+                bs
+            );
+            return;
+        }
+        BlockSpriteView.clearPreviewChildren(gn);
         Renderer.drawPiecePreview(
             refs.holdGraphics, kind, 0,
             { width: w, height: h },
@@ -1144,17 +1178,37 @@ export class UIBuilder {
 
     public static drawNextPreview(refs: UIRefs, pieces: PieceKind[]): void {
         for (let i = 0; i < refs.nextSlots.length; i++) {
+            const slot = refs.nextSlots[i];
+            const gn = slot.graphics.node;
+            // Dùng kích thước thật của Gfx (Mask) để căn giữa / scale vừa slot.
+            const sz = gn.getContentSize();
+            const panelW = sz.width > 1 ? sz.width : slot.size.width;
+            const panelH = sz.height > 1 ? sz.height : slot.size.height;
             if (i < pieces.length) {
-                const size = refs.nextSlots[i].size;
-                const bs = UIBuilder.calcPreviewBlockSize(size.width, size.height);
-                Renderer.drawPiecePreview(
-                    refs.nextSlots[i].graphics,
-                    pieces[i], 0,
-                    size,
-                    bs
-                );
+                const size = { width: panelW, height: panelH };
+                const bs = UIBuilder.calcPreviewBlockSize(panelW, panelH);
+                if (UIBuilder.pieceBlockFramesReady()) {
+                    slot.graphics.clear();
+                    BlockSpriteView.drawPreview(
+                        gn,
+                        UIBuilder.getPieceBlockFrames(),
+                        pieces[i],
+                        0,
+                        size,
+                        bs
+                    );
+                } else {
+                    BlockSpriteView.clearPreviewChildren(gn);
+                    Renderer.drawPiecePreview(
+                        slot.graphics,
+                        pieces[i], 0,
+                        size,
+                        bs
+                    );
+                }
             } else {
-                refs.nextSlots[i].graphics.clear();
+                slot.graphics.clear();
+                BlockSpriteView.clearPreviewChildren(gn);
             }
         }
     }

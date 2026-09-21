@@ -7,7 +7,7 @@
  *                - swipe / drag left–right       => move one cell that direction
  *                - swipe down (fast flick)       => hard drop
  *                - swipe down (slow drag)        => continuous soft drop while dragging
- *                - hold: chỉ qua ô Hold trên HUD (không double-tap / phím)
+ *                - hold: ô Hold trên HUD, hoặc phím X (PC)
  *
  *              Desktop (Windows/Mac exe, web trên PC): engine thường **không** đưa chuột vào
  *              `TOUCH_*` — dùng `MOUSE_*` trên cùng node. Mobile vẫn chỉ dùng `TOUCH_*`.
@@ -18,6 +18,7 @@
  *                - DOWN / S    => soft drop (held)
  *                - UP / W      => hard drop (one-shot)
  *                - Z           => rotate clockwise
+ *                - X           => hold / swap hold
  *                - SPACE       => hard drop
  *                - P / ESC     => pause toggle
  *                - R           => restart (when game over)
@@ -32,6 +33,7 @@ export interface InputHandlers {
     softDropStart(): void;
     softDropStop(): void;
     hardDrop(): void;
+    hold(): void;
     togglePause(): void;
     restart(): void;
 }
@@ -211,6 +213,10 @@ export class InputCtrl {
 
             case KEY.z:
                 this.handlers.rotateCW();
+                break;
+
+            case KEY.x:
+                this.handlers.hold();
                 break;
 
         }

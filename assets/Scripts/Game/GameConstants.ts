@@ -201,7 +201,8 @@ export const GameConstants = {
         OPACITY: 0.6,
     },
 
-    /** Hard / soft drop — một vệt liền, màu khối, gradient mờ lên trên. */
+    /** Hard / soft drop — một vệt liền, màu khối, gradient mờ lên trên.
+     *  Hiện tạm tắt trong Renderer / GameMain (sprite block mới). */
     DROP_TRAIL: {
         FADE_SECONDS: 0.38,
         SOFT_TRAIL_HEIGHT_CELLS: 3,

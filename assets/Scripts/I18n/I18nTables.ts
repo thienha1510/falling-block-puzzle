@@ -24,7 +24,7 @@ export const I18N_STRINGS = {
             'Invisibility mode is locked.\nReach a Marathon best score over 500 to unlock.',
         HELP_GESTURE_1: 'Tap/Z to rotate  •  Swipe/WADS to move',
         HELP_GESTURE_2: 'Flick down/Space: hard drop  •  Drag down slowly/S: soft drop',
-        HELP_GESTURE_3: 'Tap HOLD panel to store the current piece',
+        HELP_GESTURE_3: 'Tap HOLD panel or press X to store the current piece',
         GUIDE_TITLE: 'GUIDE',
         GUIDE_DESC_NORMAL:
             'Clear lines to score.\nFall speed stays fixed — no levels.\nGreat for quick practice.',
@@ -67,7 +67,7 @@ export const I18N_STRINGS = {
             'Chế độ tàng hình chưa mở khóa.\nCần đạt kỉ lục Marathon trên 500 điểm.',
         HELP_GESTURE_1: 'Chạm/Z để xoay  •  Vuốt/WADS để di chuyển',
         HELP_GESTURE_2: 'Vuốt xuống nhanh/Space: rơi tức thì  •  Vuốt xuống chậm/S: rơi chậm',
-        HELP_GESTURE_3: 'Chạm ô GIỮ để cất gạch hiện tại',
+        HELP_GESTURE_3: 'Chạm ô GIỮ hoặc nhấn X để cất gạch hiện tại',
         GUIDE_TITLE: 'HƯỚNG DẪN',
         GUIDE_DESC_NORMAL:
             'Xóa hàng để ghi điểm.\nTốc độ rơi cố định — không tăng cấp.\nPhù hợp chơi nhanh.',
