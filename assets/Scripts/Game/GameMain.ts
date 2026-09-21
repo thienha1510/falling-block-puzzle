@@ -86,6 +86,13 @@ export default class GameMain extends cc.Component {
     @property({ range: [0, 1, 0.01], tooltip: 'Âm lượng nhạc nền (0–1).' })
     public backgroundMusicVolume = 0.55;
 
+    @property({
+        type: [cc.SpriteFrame],
+        tooltip:
+            'Tuỳ chọn: gán 7 sprite theo thứ tự I,O,T,S,Z,J,L. Trống = load từ resources/Blocks (khuyên dùng).',
+    })
+    public pieceBlockFramesProp: cc.SpriteFrame[] = [];
+
     @property({ type: cc.AudioClip, tooltip: 'Drop.mp3 — khi khóa gạch (đáy / chồng).' })
     private sfxDrop: cc.AudioClip | null = null;
 
@@ -1219,7 +1226,7 @@ export default class GameMain extends cc.Component {
 
     private initBlockSprites(): void {
         const self = this;
-        loadPieceBlockFrames(function (frames) {
+        const applyFrames = function (frames: (cc.SpriteFrame | null)[]) {
             self.pieceBlockFrames = frames;
             if (!self.ui || !self.ui.boardGraphics) {
                 return;
@@ -1236,7 +1243,20 @@ export default class GameMain extends cc.Component {
             if (self.renderer) {
                 self.redrawGameplayBoard();
             }
-        });
+        };
+
+        // Ưu tiên gán sẵn trên Inspector (đảm bảo có trong dependency scene).
+        const prop = this.pieceBlockFramesProp;
+        if (prop && prop.length >= 7) {
+            const fromProp: (cc.SpriteFrame | null)[] = [];
+            for (let i = 0; i < 7; i++) {
+                fromProp.push(prop[i] || null);
+            }
+            applyFrames(fromProp);
+            return;
+        }
+
+        loadPieceBlockFrames(applyFrames);
     }
 
     private redrawGameplayBoard(): void {

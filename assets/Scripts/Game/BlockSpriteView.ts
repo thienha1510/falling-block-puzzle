@@ -1,5 +1,6 @@
 /**
  * Vẽ ô khối bằng sprite block_*.png (không đụng Board / gravity / lock).
+ * Ảnh nằm trong `assets/resources/Blocks/` để luôn được đóng gói khi build.
  */
 
 import { Board, EMPTY } from './Board';
@@ -8,50 +9,62 @@ import { PieceState, Tetromino } from './Tetromino';
 
 const PAD = 2;
 
-/** Sprite-frame UUID theo PieceKind: I,O,T,S,Z,J,L */
+/** Đường dẫn cc.resources theo PieceKind: I,O,T,S,Z,J,L (không đuôi .png). */
+export const PIECE_BLOCK_RESOURCE_PATHS: ReadonlyArray<string> = [
+    'Blocks/block_light_blue', // I
+    'Blocks/block_yellow', // O
+    'Blocks/block_violet', // T
+    'Blocks/block_green', // S
+    'Blocks/block_red', // Z
+    'Blocks/block_blue', // J
+    'Blocks/block_orange', // L
+];
+
+/** @deprecated UUID — chỉ fallback Editor; build nên dùng resources. */
 export const PIECE_BLOCK_FRAME_UUIDS: ReadonlyArray<string> = [
-    'b85b4eb1-291b-44f3-b14c-20cbd30ac3ca', // I — light_blue
-    'c480e9b0-2df9-4f88-80f7-e98a83b9a987', // O — yellow
-    'bbc4a967-18e2-4ad9-8062-9f909a557fdd', // T — violet
-    'e7f98a2d-5aec-4cf7-906e-67d0619df9ac', // S — green
-    'a4ebd7d2-e02f-4efc-a538-2f253131199b', // Z — red
-    '854488e9-051e-4e4a-82f1-e2b9f9aca689', // J — blue
-    'a169580b-2e09-4a14-9513-eed5dd2c3d55', // L — orange
+    'b85b4eb1-291b-44f3-b14c-20cbd30ac3ca',
+    'c480e9b0-2df9-4f88-80f7-e98a83b9a987',
+    'bbc4a967-18e2-4ad9-8062-9f909a557fdd',
+    'e7f98a2d-5aec-4cf7-906e-67d0619df9ac',
+    'a4ebd7d2-e02f-4efc-a538-2f253131199b',
+    '854488e9-051e-4e4a-82f1-e2b9f9aca689',
+    'a169580b-2e09-4a14-9513-eed5dd2c3d55',
 ];
 
 export function loadPieceBlockFrames(
     done: (frames: (cc.SpriteFrame | null)[]) => void
 ): void {
     const out: (cc.SpriteFrame | null)[] = new Array(7);
-    let left = PIECE_BLOCK_FRAME_UUIDS.length;
+    let left = PIECE_BLOCK_RESOURCE_PATHS.length;
     const finishOne = (): void => {
         left -= 1;
         if (left <= 0) {
             done(out);
         }
     };
-    for (let i = 0; i < PIECE_BLOCK_FRAME_UUIDS.length; i++) {
+
+    for (let i = 0; i < PIECE_BLOCK_RESOURCE_PATHS.length; i++) {
         const idx = i;
         out[idx] = null;
-        const uuid = PIECE_BLOCK_FRAME_UUIDS[i];
-        cc.assetManager.loadAny(
-            { uuid: uuid, type: cc.SpriteFrame },
-            function (err: Error | null, asset: cc.Asset) {
-                if (!err && asset instanceof cc.SpriteFrame) {
-                    out[idx] = asset;
-                } else {
-                    // Fallback: uuid không type-hint
-                    cc.assetManager.loadAny({ uuid: uuid }, function (err2: Error | null, asset2: cc.Asset) {
-                        if (!err2 && asset2 instanceof cc.SpriteFrame) {
-                            out[idx] = asset2;
-                        }
-                        finishOne();
-                    });
-                    return;
-                }
+        const path = PIECE_BLOCK_RESOURCE_PATHS[i];
+        cc.resources.load(path, cc.SpriteFrame, function (err: Error | null, asset: cc.SpriteFrame) {
+            if (!err && asset) {
+                out[idx] = asset;
                 finishOne();
+                return;
             }
-        );
+            // Fallback UUID (Editor / asset chưa refresh vào resources)
+            const uuid = PIECE_BLOCK_FRAME_UUIDS[idx];
+            cc.assetManager.loadAny(
+                { uuid: uuid, type: cc.SpriteFrame },
+                function (err2: Error | null, asset2: cc.Asset) {
+                    if (!err2 && asset2 instanceof cc.SpriteFrame) {
+                        out[idx] = asset2;
+                    }
+                    finishOne();
+                }
+            );
+        });
     }
 }
 

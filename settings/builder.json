@@ -9,7 +9,7 @@
     "portrait": true,
     "upsideDown": false
   },
-  "webOrientation": "portrait",
+  "webOrientation": "auto",
   "inlineSpriteFrames": true,
   "inlineSpriteFrames_native": true,
   "mainCompressionType": "merge_all_json",
